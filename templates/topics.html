@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+{% load static %}
+
+{% block title %}
+	{{ board.name }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+	<li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+	<li class="breadcrumb-item active">{{ board.name }}</li>
+{% endblock %}
+
+{% block content %}
+	<div class="mb-4">
+		<a class="btn btn-primary" href="{% url 'new_topic' board.pk %}">New topic</a>
+	</div>
+	<table class="table">
+		<thead class="table-dark">
+			<tr>
+				<th>Topic</th>
+				<th>Starter</th>
+				<th>Replies</th>
+				<th>Views</th>
+				<th>Last Update</th>
+			</tr>
+		</thead>
+		<tbody class="infinite-container">
+			{% for topic in topics %}
+				<tr class="infinite-item">
+					<td><a href="{% url 'topic_posts' pk=board.pk topic_pk=topic.pk %}">{{ topic.subject }}</a></td>
+					<td>{{ topic.starter }}</td>
+					<td>{{ topic.replies }}</td>
+					<td>{{ topic.views }}</td>
+					<td>{{ topic.last_updated|naturaltime }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	{% if page_obj.has_next %}
+		<a class="infinite-more-link btn btn-outline-secondary btn-block mb-4" style="width: 100%;" role="button" href="?page={{ page_obj.next_page_number  }}">More</a>
+	{% endif %}
+
+	<div class="infinite-loading" style="display: none;">
+		loading...
+	</div>
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="{% static 'js/noframework.waypoints.min.js' %}"></script>
+	<script src="{% static 'js/infinite.min.js' %}"></script>
+	<script>
+		var infinitive = new Waypoint.Infinite({
+			element: $('.infinite-container')[0],
+			onBeforePageLoad: function () { $('infinite-loading').hide() },
+			onAfterPageLoad: function () { $('infinite-loading').show() }
+		})
+	</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}Django Boards{% endblock %}</title>
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+	<!-- My CSS -->
+	<link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+	{% block stylesheet %}{% endblock %}
+</head>
+<body>
+	{% block body %}
+		<nav class="navbar px-4 navbar-expand-lg navbar-dark bg-dark">
+			<div class="container">
+				<a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			</div>
+			<div class="collapse navbar-collapse" id="mainMenu">
+				{% if user.is_authenticated %}
+					<ul class="navbar-nav ms-auto">
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" id="userMenu" aria-haspopup="true" data-bs-toggle="dropdown" aria-expanded="false" data-toggle="dropdown" role="button" href="#">{{ user.username }}</a>
+							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+								<a class="dropdown-item" href="{% url 'my_account' %}">My account</a>
+								<a class="dropdown-item" href="{% url 'password_change' %}">Change password</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+							</div>
+						</li>
+					</ul>
+				{% else %}
+					<div class="row me-auto align-items-center">
+						<a class="btn btn-outline-secondary col" href="{% url 'login' %}">Log in</a>
+						<a class="btn ms-2 btn-primary col" href="{% url 'signup' %}">Sign up</a>
+					</div>
+				{% endif %}
+			</div>
+		</nav>
+		<div class="container">
+			<ol class="breadcrumb my-4">
+				{% block breadcrumb %}
+				{% endblock %}
+			</ol>
+			{% block content %}
+			{% endblock %}
+		</div>
+	{% endblock body %}
+
+	<!-- Bootstrap JS -->
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+	<!-- JQuery -->
+	<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+	{% block javascript %}
+	{% endblock %}
+</body>
+</html>

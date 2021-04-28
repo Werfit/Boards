@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Peralta&display=swap');
+
+.navbar-brand {
+	font-family: 'Peralta', cursive;
+}
+
+.row {
+	min-width: 200px;
+}

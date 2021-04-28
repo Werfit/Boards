@@ -1,0 +1,13 @@
+appdirs==1.4.4
+certifi==2020.12.5
+cffi==1.14.5
+distlib==0.3.1
+filelock==3.0.12
+pipenv==2020.11.15
+pycparser==2.20
+semantic-version==2.8.5
+setuptools-rust==0.12.1
+six==1.15.0
+toml==0.10.2
+virtualenv==20.4.3
+virtualenv-clone==0.5.4
