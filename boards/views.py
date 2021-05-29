@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import UpdateView, ListView
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.utils import timezone
@@ -30,6 +29,7 @@ class TopicListView(ListView):
 		self.board = get_object_or_404(Board, pk=self.kwargs['pk'])
 		queryset = self.board.topics.order_by('-last_updated').annotate(replies=Count('posts') - 1)
 		return queryset
+
 
 @login_required
 def new_topic(request, pk=None):

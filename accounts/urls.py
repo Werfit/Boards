@@ -1,6 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
-from .views import signup, UserUpdateView
+from .views import signup, UserUpdateView, update_profile
 
 urlpatterns = [
 	# Auth
@@ -33,5 +33,6 @@ urlpatterns = [
 	), name="password_change_done"),
 
 	# User Profile
-	path('settings/account/', UserUpdateView.as_view(), name='my_account')
+	path('settings/account/', UserUpdateView.as_view(), name='my_account'),
+	path('settings/account/testing/', update_profile, name='my_account_testing')
 ]

@@ -1,8 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.text import Truncator
 from django.utils.html import mark_safe
+
 from markdown import markdown
+
+from forum.settings import AUTH_USER_MODEL as USER
 
 
 class Board(models.Model):
@@ -23,7 +25,7 @@ class Topic(models.Model):
 	subject = models.CharField(max_length=255)
 	last_updated = models.DateTimeField(auto_now_add=True)
 	board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='topics')
-	starter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='topics')
+	starter = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='topics')
 	views = models.PositiveIntegerField(default=0)
 
 	def __str__(self):
@@ -37,8 +39,8 @@ class Post(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(null=True)
 
-	created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-	updated_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='+')
+	created_by = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='posts')
+	updated_by = models.ForeignKey(USER, on_delete=models.CASCADE, null=True, related_name='+')
 
 	def __str__(self):
 		truncated_message = Truncator(self.message)
