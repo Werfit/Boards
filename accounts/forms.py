@@ -32,6 +32,8 @@ class SignUpForm(UserCreationForm):
                 user.is_reader = True
                 Reader.objects.create(user=user)
 
+            user.save()
+
         return user
 
 

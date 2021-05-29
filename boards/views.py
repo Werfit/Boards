@@ -5,14 +5,26 @@ from django.db.models import Count
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 
-from .forms import NewTopicForm, PostForm
+from accounts.decorators import blogger_required
+
+from .forms import NewBoardForm, NewTopicForm, PostForm
 from .models import Board, Topic, Post
 
+
+# TODO: Sort classes first -> functions
 
 class HomeView(ListView):
 	model = Board
 	context_object_name = 'boards'
-	template_name = 'index.html'	
+	template_name = 'index.html'
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user = self.request.user
+
+		context['is_blogger'] = user.is_blogger if user.is_authenticated else False
+
+		return context
 
 
 class TopicListView(ListView):
@@ -29,35 +41,6 @@ class TopicListView(ListView):
 		self.board = get_object_or_404(Board, pk=self.kwargs['pk'])
 		queryset = self.board.topics.order_by('-last_updated').annotate(replies=Count('posts') - 1)
 		return queryset
-
-
-@login_required
-def new_topic(request, pk=None):
-	board = get_object_or_404(Board, pk=pk)
-
-	if request.method == 'POST':
-		form = NewTopicForm(request.POST)
-
-		if form.is_valid():
-			topic = form.save(commit=False)
-			topic.board = board
-			topic.starter = request.user
-			topic.save()
-
-			post = Post.objects.create(
-				message=form.cleaned_data.get('message'),
-				topic=topic,
-				created_by=request.user
-			)
-
-			return redirect('topic_posts', pk=pk, topic_pk=topic.pk)
-	else:
-		form = NewTopicForm()
-
-	return render(request, 'new_topic.html', {
-		'board': board,
-		'form': form
-	})
 
 
 class PostListView(ListView):
@@ -81,6 +64,74 @@ class PostListView(ListView):
 		queryset = self.topic.posts.order_by('created_at')
 		return queryset
 
+
+@method_decorator(login_required, name='dispatch')
+class PostUpdateView(UpdateView):
+	model = Post
+	fields = ('message',)
+	template_name = 'edit_post.html'
+	pk_url_kwarg = 'post_pk'
+	context_object_name = 'post'
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		return queryset.filter(created_by=self.request.user)
+
+	def form_valid(self, form):
+		post = form.save(commit=False)
+		post.updated_by = self.request.user
+		post.updated_at = timezone.now()
+		post.save()
+
+		return redirect('topic_posts', pk=post.topic.board.pk, topic_pk=post.topic.pk)
+
+
+@login_required
+@blogger_required
+def new_board(request):
+	if request.method == 'POST':
+		form = NewBoardForm(request.POST)
+
+		if form.is_valid():
+			form.save()
+			return redirect('home')
+	else:
+		form = NewBoardForm()
+
+	return render(request, 'new_board.html', {
+		'form': form
+	})
+
+
+@login_required
+def new_topic(request, pk=None):
+	board = get_object_or_404(Board, pk=pk)
+
+	if request.method == 'POST':
+		form = NewTopicForm(request.POST)
+
+		if form.is_valid():
+			topic = form.save(commit=False)
+			topic.board = board
+			topic.starter = request.user
+			topic.save()
+
+			Post.objects.create(
+				message=form.cleaned_data.get('message'),
+				topic=topic,
+				created_by=request.user
+			)
+
+			return redirect('topic_posts', pk=pk, topic_pk=topic.pk)
+	else:
+		form = NewTopicForm()
+
+	return render(request, 'new_topic.html', {
+		'board': board,
+		'form': form
+	})
+
+
 @login_required
 def reply_topic(request, pk=None, topic_pk=None):
 	topic = get_object_or_404(Topic, board__pk=pk, pk=topic_pk)
@@ -103,24 +154,3 @@ def reply_topic(request, pk=None, topic_pk=None):
 		'topic': topic,
 		'form': form
 	})
-
-
-@method_decorator(login_required, name='dispatch')
-class PostUpdateView(UpdateView):
-	model = Post
-	fields = ('message',)
-	template_name = 'edit_post.html'
-	pk_url_kwarg = 'post_pk'
-	context_object_name = 'post'
-
-	def get_queryset(self):
-		queryset = super().get_queryset()
-		return queryset.filter(created_by=self.request.user)
-
-	def form_valid(self, form):
-		post = form.save(commit=False)
-		post.updated_by = self.request.user
-		post.updated_at = timezone.now()
-		post.save()
-
-		return redirect('topic_posts', pk=post.topic.board.pk, topic_pk=post.topic.pk)

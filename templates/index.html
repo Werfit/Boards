@@ -5,6 +5,10 @@
 {% endblock %}
 
 {% block content %}
+    {% if user.is_blogger %}
+        <a href="{% url 'new_board' %}" class="btn btn-primary mb-4">New board</a>
+    {% endif %}
+
 	<table class="table">
 		<thead class="table-dark">
 			<tr>
@@ -12,6 +16,9 @@
 				<th>Posts</th>
 				<th>Topics</th>
 				<th>Last Post</th>
+                {% if user.is_blogger %}
+                    <th>Actions</th>
+                {% endif %}
 			</tr>
 		</thead>
 		<tbody>
@@ -43,6 +50,12 @@
 							{% endif %}
 						{% endwith %}
 					</td>
+                    {% if user.is_blogger %}
+                        <td>
+                            <button class="btn btn-outline-danger btn-lg">D</button>
+                            <button class="btn btn-outline-info btn-lg">E</button>
+                        </td>
+                    {% endif %}
 				</tr>
 			{% endfor %}
 		</tbody>
