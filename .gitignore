@@ -1,0 +1,17 @@
+# IDES
+.idea/
+.vscode/
+
+# ENV
+boards_env/
+
+# OTHER
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# DB
+*.sqlite3
+
+# ENV
+.env
