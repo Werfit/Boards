@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import UpdateView, ListView
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 from accounts.decorators import blogger_required
 
@@ -17,6 +19,7 @@ class HomeView(ListView):
 	model = Board
 	context_object_name = 'boards'
 	template_name = 'index.html'
+	paginate_by = 5
 
 
 class TopicListView(ListView):
@@ -89,6 +92,7 @@ class BoardUpdateView(UpdateView):
 
 	def form_valid(self, form):
 		form.save()
+		messages.success(self.request, 'The board was successfully updated')
 		return redirect('home')
 
 
@@ -100,6 +104,8 @@ def new_board(request):
 
 		if form.is_valid():
 			form.save()
+			messages.success(request, 'Your board was successfully created!')
+
 			return redirect('home')
 	else:
 		form = NewBoardForm()
@@ -169,12 +175,18 @@ def delete_board(request, pk=None):
 	data = {}
 
 	if request.method == 'POST':
+		messages.success(request, 'The board was successfully deleted')
 		board.delete()
 		data['form_is_valid'] = True
 		boards = Board.objects.all()
+
+		paginator = Paginator(boards, 5)
+		paginated_boards = paginator.page(request.GET.get('page'))
+
 		data['html_board_list'] = render_to_string('includes/boards.html', {
-			'boards': boards,
+			'boards': paginated_boards,
 			'user': request.user,
+			'page_obj': {'number': request.GET.get('page')}
 		}, request=request)
 
 	return JsonResponse(data)

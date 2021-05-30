@@ -28,7 +28,7 @@
         </td>
         {% if user.is_blogger %}
             <td>
-                <form method="POST" data-action="{% url 'delete_board' pk=board.pk %}" class="board-delete-form" onsubmit="return false;">
+                <form method="POST" data-action="{% url 'delete_board' pk=board.pk %}?page={{page_obj.number}}" class="board-delete-form" onsubmit="return false;">
                     {% csrf_token %}
                     <a href="{% url 'edit_board' board_pk=board.pk %}" class="btn btn-outline-warning btn-lg">E</a>
                     <button type="submit" class="btn btn-outline-danger btn-lg">D</button>
