@@ -1,4 +1,5 @@
 {% load static %}
+{% load flatpages %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,6 +60,15 @@
 			{% endblock %}
 		</div>
 	{% endblock body %}
+
+    <nav class="navbar navbar-dark bg-dark" style="position: absolute;bottom: 0px;width: 100%;">
+        <div class="container-fluid">
+            {% get_flatpages as flatpages %}
+            {% for page in flatpages %}
+                <a href="{{ page.url }}" class="link-light">{{ page.title }}</a>
+            {% endfor %}
+        </div>
+    </nav>
 
 	<!-- Bootstrap JS -->
 	<script src="{% static 'js/bootstrap.min.js' %}"></script>
