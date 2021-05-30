@@ -1,0 +1,39 @@
+{% for board in boards %}
+    <tr>
+        <td>
+            <a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a>
+            <br />
+            <small class="text-muted d-block">{{ board.description }}</small>
+        </td>
+        <td class="align-middle">
+            {{ board.get_posts_count }}
+        </td>
+        <td class="align-middle">
+            {{ board.topics.count }}
+        </td>
+        <td>
+            {% with	post=board.get_last_post %}
+                {% if post %}
+                    <small>
+                            <a href="{% url 'topic_posts' board.pk post.topic.pk %}">
+                            By {{ post.created_by.username }} at {{ post.created_at }}
+                            </a> 
+                    </small>
+                {% else %}
+                    <small>
+                        No posts yet.
+                    </small>
+                {% endif %}
+            {% endwith %}
+        </td>
+        {% if user.is_blogger %}
+            <td>
+                <form method="POST" data-action="{% url 'delete_board' pk=board.pk %}" class="board-delete-form" onsubmit="return false;">
+                    {% csrf_token %}
+                    <a href="{% url 'edit_board' board_pk=board.pk %}" class="btn btn-outline-warning btn-lg">E</a>
+                    <button type="submit" class="btn btn-outline-danger btn-lg">D</button>
+                </form>
+            </td>
+        {% endif %}
+    </tr>
+{% endfor %}

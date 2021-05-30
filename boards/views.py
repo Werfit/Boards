@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 from accounts.decorators import blogger_required
 
@@ -11,20 +13,10 @@ from .forms import NewBoardForm, NewTopicForm, PostForm
 from .models import Board, Topic, Post
 
 
-# TODO: Sort classes first -> functions
-
 class HomeView(ListView):
 	model = Board
 	context_object_name = 'boards'
 	template_name = 'index.html'
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		user = self.request.user
-
-		context['is_blogger'] = user.is_blogger if user.is_authenticated else False
-
-		return context
 
 
 class TopicListView(ListView):
@@ -84,6 +76,20 @@ class PostUpdateView(UpdateView):
 		post.save()
 
 		return redirect('topic_posts', pk=post.topic.board.pk, topic_pk=post.topic.pk)
+
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(blogger_required, name='dispatch')
+class BoardUpdateView(UpdateView):
+	model = Board
+	fields = ('name', 'description')
+	template_name = 'edit_board.html'
+	pk_url_kwarg = 'board_pk'
+	context_object_name = 'board'
+
+	def form_valid(self, form):
+		form.save()
+		return redirect('home')
 
 
 @login_required
@@ -154,3 +160,21 @@ def reply_topic(request, pk=None, topic_pk=None):
 		'topic': topic,
 		'form': form
 	})
+
+
+@login_required
+@blogger_required
+def delete_board(request, pk=None):
+	board = get_object_or_404(Board, pk=pk)
+	data = {}
+
+	if request.method == 'POST':
+		board.delete()
+		data['form_is_valid'] = True
+		boards = Board.objects.all()
+		data['html_board_list'] = render_to_string('includes/boards.html', {
+			'boards': boards,
+			'user': request.user,
+		}, request=request)
+
+	return JsonResponse(data)
