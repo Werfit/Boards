@@ -41,7 +41,7 @@ def update_profile(request):
 		if forms['form'].is_valid() and forms['extra'].is_valid():
 			forms['form'].save()
 			forms['extra'].save()
-			messages.success('Your account was updated successfully')
+			messages.success(request, 'Your account was updated successfully')
 	else:
 		if user.is_blogger:
 			extra = BloggerUpdateForm(instance=user.blogger)

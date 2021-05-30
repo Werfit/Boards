@@ -44,7 +44,7 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class BloggerUpdateForm(forms.ModelForm):
-    categories = forms.MultipleChoiceField(choices=CHOICES)
+    categories = forms.MultipleChoiceField(choices=CHOICES, required=False)
 
     class Meta:
         model = Blogger
