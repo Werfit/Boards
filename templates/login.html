@@ -14,7 +14,9 @@
 						{% csrf_token %}
 						<input type="hidden" name="next" value="{{ next }}" />
 						{% include 'includes/form.html' %}
-						<button class="btn btn-primary btn-block">Log in</button>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Log in</button>
+                        </div>
 					</form>
 				</div>
 				<div class="card-footer text-muted text-center">
@@ -24,6 +26,11 @@
 			<div class="text-center py-2">
 				<small><a class="text-muted" href="{% url 'password_reset' %}">Forgot your password?</a></small>
 			</div>
+            <div class="text-center py-2">
+                <a class="btn btn-outline-secondary" href="{% url 'social:begin' 'github' %}">
+                    Login with GitHub
+                </a>
+            </div>
 		</div>
 	</div>
 {% endblock %}
