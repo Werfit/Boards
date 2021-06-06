@@ -4,9 +4,9 @@
 Firstly, clone the repository
 
 <pre>git clone https://github.com/Werfit/Boards</pre>
-Secondly, install all requirments
+Secondly, install all requirements
 
-<pre>pip install</pre>
+<pre>pip install -r requirements.txt</pre>
   
 ## Set up
 
